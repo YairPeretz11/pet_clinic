@@ -3,6 +3,8 @@ export interface IPatient {
   phone: string;
   petName: string;
   petType: string;
-  petAge: number;
-  createdAt?: Date;
+  // Source of truth saved in DB
+  birthDate: string | Date;
+  // Derived on the server/client for display/filtering
+  petAge?: number;
 }

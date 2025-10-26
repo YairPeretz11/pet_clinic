@@ -1,5 +1,3 @@
-import { TextField, Select, MenuItem } from "@mui/material";
-
 interface ModalFieldProps {
   keyName: string;
   value?: string | number;
@@ -10,54 +8,63 @@ export default function ModalField({ keyName, value, onChange }: ModalFieldProps
   switch (keyName) {
     case "petType":
       return (
-        <Select
-          key={keyName}
-          value={value || ""}
-          fullWidth
-          displayEmpty
-          onChange={(e) => onChange(keyName, e.target.value)}
-          className="my-2"
-        >
-          <MenuItem value="" disabled>
-            Select Pet Type
-          </MenuItem>
-          <MenuItem value="Dog">Dog 🐶</MenuItem>
-          <MenuItem value="Cat">Cat 🐱</MenuItem>
-          <MenuItem value="Parrot">Parrot 🐦</MenuItem>
-          <MenuItem value="Other">Other 🐾</MenuItem>
-        </Select>
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-muted-700 dark:text-muted-200">
+            Pet Type
+          </label>
+          <select
+            className="select"
+            value={(value as string) || ""}
+            onChange={(e) => onChange(keyName, e.target.value)}
+          >
+            <option value="" disabled>
+              Select Pet Type
+            </option>
+            <option value="Dog">🐶 Dog</option>
+            <option value="Cat">🐱 Cat</option>
+            <option value="Parrot">🦜 Parrot</option>
+            <option value="Other">🐾 Other</option>
+          </select>
+        </div>
       );
 
     case "petAge":
       return (
-        <TextField
-          key={keyName}
-          label="Pet Birth Date"
-          type="date"
-          fullWidth
-          margin="normal"
-          InputLabelProps={{ shrink: true }}
-          onChange={(e) => {
-            const birthDate = new Date(e.target.value);
-            const diffMs = Date.now() - birthDate.getTime();
-            const ageDate = new Date(diffMs);
-            const years = Math.abs(ageDate.getUTCFullYear() - 1970);
-            onChange("petAge", years);
-          }}
-        />
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-muted-700 dark:text-muted-200">
+            Pet Birth Date
+          </label>
+          <input
+            type="date"
+            className="input"
+            onChange={(e) => {
+              const raw = e.target.value;
+              const birthDate = new Date(raw);
+              const now = new Date();
+              let years = now.getUTCFullYear() - birthDate.getUTCFullYear();
+              const m = now.getUTCMonth() - birthDate.getUTCMonth();
+              if (m < 0 || (m === 0 && now.getUTCDate() < birthDate.getUTCDate())) years--;
+              if (isNaN(years) || years < 0) years = 0;
+              onChange("birthDate", raw);
+              onChange("petAge", years);
+            }}
+          />
+        </div>
       );
 
     default:
       return (
-        <TextField
-          key={keyName}
-          label={keyName}
-          fullWidth
-          margin="normal"
-          autoFocus={keyName === "name"}
-          value={value || ""}
-          onChange={(e) => onChange(keyName, e.target.value)}
-        />
+        <div className="space-y-1">
+          <label className="block text-sm font-medium capitalize text-muted-700 dark:text-muted-200">
+            {keyName}
+          </label>
+          <input
+            className="input"
+            autoFocus={keyName === "name"}
+            value={(value as string) || ""}
+            onChange={(e) => onChange(keyName, e.target.value)}
+          />
+        </div>
       );
   }
 }

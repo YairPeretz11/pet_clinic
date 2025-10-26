@@ -5,7 +5,10 @@ const patientSchema = new Schema({
   phone: { type: String, required: true },
   petName: { type: String, required: true },
   petType: { type: String, required: true },
-  petAge: { type: Number, required: true },
+  // Store birthDate as the source of truth
+  birthDate: { type: Date, required: true },
+  // petAge kept for backward compatibility but not required
+  petAge: { type: Number, required: false },
   createdAt: { type: Date, default: Date.now },
 });
 

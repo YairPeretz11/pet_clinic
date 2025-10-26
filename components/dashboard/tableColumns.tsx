@@ -1,29 +1,19 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import { TextField, Select, MenuItem } from "@mui/material";
 
 const columnHelper = createColumnHelper<any>();
 
-export const getColumns = (filters, setFilters, debouncedNameChange) => [
+export const getColumns = (setFilters: (filters: any) => void, debouncedNameChange: (value: string) => void)=> [
   columnHelper.accessor("name", {
     header: () => (
-      <div className="flex flex-row items-center gap-2">
-        <span className="font-medium text-gray-700 whitespace-nowrap">Name:</span>
-        <TextField
-          size="small"
-          variant="outlined"
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-muted-700 whitespace-nowrap">Name:</span>
+        <input
+          className="input w-[130px]"
           placeholder="Search..."
-          defaultValue={filters.name}
           onChange={(e) => {
-            setFilters((prev) => ({ ...prev, name: e.target.value }));
+            setFilters((prev: any) => ({ ...prev, name: e.target.value }));
             debouncedNameChange(e.target.value);
           }}
-          inputProps={{
-            style: {
-              fontSize: 13,
-              padding: "4px 8px",
-            },
-          }}
-          className="w-[110px] bg-white rounded-md"
         />
       </div>
     ),
@@ -31,6 +21,11 @@ export const getColumns = (filters, setFilters, debouncedNameChange) => [
 
   columnHelper.accessor("phone", {
     header: "Phone",
+    cell: (info) => (
+      <a href={`tel:${info.getValue()}`} className="text-primary-600 hover:underline">
+        {info.getValue()}
+      </a>
+    ),
   }),
 
   columnHelper.accessor("petName", {
@@ -39,23 +34,12 @@ export const getColumns = (filters, setFilters, debouncedNameChange) => [
 
   columnHelper.accessor("petAge", {
     header: () => (
-      <div className="flex flex-row items-center gap-2">
-        <span className="font-medium text-gray-700 whitespace-nowrap">Age:</span>
-        <TextField
-          size="small"
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-muted-700 whitespace-nowrap">Age:</span>
+        <input
+          className="input w-[80px]"
           type="number"
-          variant="outlined"
-          defaultValue={filters.petAge}
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, petAge: e.target.value }))
-          }
-          inputProps={{
-            style: {
-              fontSize: 13,
-              padding: "4px 8px",
-            },
-          }}
-          className="w-[80px] bg-white rounded-md"
+          onChange={(e) => setFilters((prev: any) => ({ ...prev, petAge: e.target.value }))}
         />
       </div>
     ),
@@ -63,24 +47,25 @@ export const getColumns = (filters, setFilters, debouncedNameChange) => [
 
   columnHelper.accessor("petType", {
     header: () => (
-      <div className="flex flex-row items-center gap-2">
-        <span className="font-medium text-gray-700 whitespace-nowrap">Type:</span>
-        <Select
-          size="small"
-          displayEmpty
-          defaultValue={filters.petType}
-          onChange={(e) =>
-            setFilters((prev) => ({ ...prev, petType: e.target.value }))
-          }
-          className="w-[100px] bg-white rounded-md"
+      <div className="flex items-center gap-2">
+        <span className="font-medium text-muted-700 whitespace-nowrap">Type:</span>
+        <select
+          className="select w-[120px]"
+          defaultValue=""
+          onChange={(e) => setFilters((prev: any) => ({ ...prev, petType: (e.target as HTMLSelectElement).value }))}
         >
-          <MenuItem value="">All</MenuItem>
-          <MenuItem value="Dog">Dog 🐶</MenuItem>
-          <MenuItem value="Cat">Cat 🐱</MenuItem>
-          <MenuItem value="Parrot">Parrot 🐦</MenuItem>
-          <MenuItem value="Other">Other 🐾</MenuItem>
-        </Select>
+          <option value="">All</option>
+          <option value="Dog">🐶 Dog</option>
+          <option value="Cat">🐱 Cat</option>
+          <option value="Parrot">🦜 Parrot</option>
+          <option value="Other">🐾 Other</option>
+        </select>
       </div>
+    ),
+    cell: (info) => (
+      <span className="badge bg-muted-50 dark:bg-muted-900">
+        {info.getValue()}
+      </span>
     ),
   }),
 ];

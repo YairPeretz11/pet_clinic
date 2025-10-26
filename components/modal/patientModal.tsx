@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { Modal, Box } from "@mui/material";
+import { useState, useEffect, useCallback } from "react";
 import { useSnackbar } from "notistack";
 import { IPatient } from "@/lib/interfaces";
 import ModalHeader from "./modalHeader";
@@ -29,27 +28,65 @@ export default function PatientModal({
     petName: "",
     petAge: 0,
     petType: "",
+    birthDate: "",
   });
 
   useEffect(() => {
-    if (!open) return; 
-    if (initialData) setForm(initialData);
-    else setForm({ name: "", phone: "", petName: "", petType: "", petAge: 0 });
+    if (!open) return;
+    if (initialData) {
+      const birthDate = (initialData as any).birthDate
+        ? new Date((initialData as any).birthDate)
+        : undefined;
+      const bdStr = birthDate && !isNaN(birthDate.getTime())
+        ? birthDate.toISOString().substring(0, 10)
+        : "";
+      setForm({
+        name: initialData.name || "",
+        phone: initialData.phone || "",
+        petName: initialData.petName || "",
+        petType: initialData.petType || "",
+        petAge: (initialData as any).petAge || 0,
+        birthDate: bdStr,
+      });
+    } else {
+      setForm({ name: "", phone: "", petName: "", petType: "", petAge: 0, birthDate: "" });
+    }
   }, [open, initialData]);
 
   const handleChange = (key: string, value: string | number) => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
+  const isValidPhone = (phone: string) => {
+    const regex = /^\+?[0-9]{7,15}$/;
+    return regex.test(phone.replace(/\s|-/g, ""));
+  };
+
   const handleSubmit = () => {
+    if (!form.birthDate) {
+      enqueueSnackbar("Birth date is required!", { variant: "warning" });
+      return;
+    }
+
     if (
       !form.name ||
       !form.phone ||
       !form.petName ||
       !form.petType ||
-      !form.petAge
+      !form.birthDate
     ) {
       enqueueSnackbar("All fields are required!", { variant: "warning" });
+      return;
+    }
+
+    if (!isValidPhone(form.phone)) {
+      enqueueSnackbar("Invalid phone number format!", { variant: "error" });
+      return;
+    }
+
+    const bd = new Date(form.birthDate);
+    if (isNaN(bd.getTime()) || bd.getTime() > Date.now()) {
+      enqueueSnackbar("Birth date cannot be in the future", { variant: "error" });
       return;
     }
 
@@ -64,52 +101,53 @@ export default function PatientModal({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") handleSubmit();
     if (e.key === "Escape") onClose();
   };
 
+  const onOverlayClick = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      if (e.target === e.currentTarget) onClose();
+    },
+    [onClose]
+  );
+
+  if (!open) return null;
+
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      BackdropProps={{
-        sx: {
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
-          backdropFilter: "blur(3px)",
-        },
-      }}
+    <div
+      className="fixed inset-0 z-[1500] flex items-center justify-center p-4"
+      onClick={onOverlayClick}
     >
-      <Box
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm animate-fade" />
+
+      <div
+        role="dialog"
+        aria-modal="true"
         onKeyDown={handleKeyDown}
-        className="absolute top-1/2 left-1/2 w-11/12 sm:w-[420px] max-h-[90vh] overflow-y-auto -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-xl p-6 focus:outline-none z-[1500]"
-        sx={{
-          bgcolor: "white",
-          boxShadow: 6,
-          p: 4,
-          borderRadius: 2,
-          zIndex: 1500,
-        }}
+        className="relative w-full max-w-md max-h-[90vh] overflow-y-auto card glass p-6 animate-fade"
       >
         <ModalHeader
           title={initialData ? "Edit Patient" : "Add Patient"}
           onDelete={initialData ? onDelete : undefined}
         />
 
-        {["name", "phone", "petName", "petType", "petAge"].map((field) => (
-          <ModalField
-            key={field}
-            keyName={field}
-            value={(form as any)[field]}
-            onChange={handleChange}
-          />
-        ))}
+        <div className="mt-2 space-y-2">
+          {["name", "phone", "petName", "petType", "petAge"].map((field) => (
+            <ModalField
+              key={field}
+              keyName={field}
+              value={field === "petAge" ? (form as any)["birthDate"] : (form as any)[field]}
+              onChange={handleChange}
+            />
+          ))}
+        </div>
 
         <ModalActions
           onClose={onClose}
           onSubmit={handleSubmit}
           label={initialData ? "Save" : "Add"}
         />
-      </Box>
-    </Modal>
+      </div>
+    </div>
   );
 }
