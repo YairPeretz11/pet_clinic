@@ -2,19 +2,15 @@ import { IPatient } from "@/lib/interfaces";
 
 // This component renders a list of patient cards for mobile view
 
-interface ListedPatient extends IPatient {
-  _id: string;
-}
-
 interface PatientCardListProps {
-  patients: ListedPatient[];
+  patients: any[];
   onEdit: (patient: IPatient) => void;
 }
 
 export default function PatientCardList({ patients, onEdit }: PatientCardListProps) {
   return (
     <div className="sm:hidden flex flex-col gap-3">
-      {patients.map((p: ListedPatient) => (
+      {patients.map((p) => (
         <div key={p._id} className="card card-hover p-4">
           <div className="flex justify-between items-center mb-2">
             <h2 className="text-lg font-semibold text-muted-800 dark:text-white">{p.name}</h2>

@@ -90,7 +90,8 @@ export default function PatientModal({
       return;
     }
 
-    onSave({ ...form, petAge: Number(form.petAge) });
+    const { petAge: _unused, ...payload } = form;
+    onSave(payload as IPatient);
     enqueueSnackbar(
       initialData
         ? "Patient updated successfully!"
@@ -132,14 +133,16 @@ export default function PatientModal({
         />
 
         <div className="mt-2 space-y-2">
-          {["name", "phone", "petName", "petType", "petAge"].map((field) => (
-            <ModalField
-              key={field}
-              keyName={field}
-              value={field === "petAge" ? (form as any)["birthDate"] : (form as any)[field]}
-              onChange={handleChange}
-            />
-          ))}
+          {(["name", "phone", "petName", "petType", "birthDate"] as Array<keyof typeof form>).map(
+            (field) => (
+              <ModalField
+                key={field}
+                keyName={field}
+                value={form[field]}
+                onChange={handleChange}
+              />
+            )
+          )}
         </div>
 
         <ModalActions

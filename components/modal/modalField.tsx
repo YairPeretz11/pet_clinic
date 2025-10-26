@@ -4,6 +4,19 @@ interface ModalFieldProps {
   onChange: (key: string, value: string | number) => void;
 }
 
+const calculateAgeFromBirthDate = (raw: string) => {
+  const birthDate = new Date(raw);
+  if (isNaN(birthDate.getTime())) return 0;
+
+  const now = new Date();
+  let years = now.getUTCFullYear() - birthDate.getUTCFullYear();
+  const monthDiff = now.getUTCMonth() - birthDate.getUTCMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && now.getUTCDate() < birthDate.getUTCDate())) {
+    years--;
+  }
+  return Math.max(0, years);
+};
+
 export default function ModalField({ keyName, value, onChange }: ModalFieldProps) {
   switch (keyName) {
     case "petType":
@@ -20,15 +33,15 @@ export default function ModalField({ keyName, value, onChange }: ModalFieldProps
             <option value="" disabled>
               Select Pet Type
             </option>
-            <option value="Dog">🐶 Dog</option>
-            <option value="Cat">🐱 Cat</option>
-            <option value="Parrot">🦜 Parrot</option>
-            <option value="Other">🐾 Other</option>
+            <option value="Dog">Dog 🐶</option>
+            <option value="Cat">Cat 🐱</option>
+            <option value="Parrot">Parrot 🦜</option>
+            <option value="Other">Other 🐾</option>
           </select>
         </div>
       );
 
-    case "petAge":
+    case "birthDate":
       return (
         <div className="space-y-1">
           <label className="block text-sm font-medium text-muted-700 dark:text-muted-200">
@@ -37,16 +50,11 @@ export default function ModalField({ keyName, value, onChange }: ModalFieldProps
           <input
             type="date"
             className="input"
+            value={(value as string) || ""}
             onChange={(e) => {
               const raw = e.target.value;
-              const birthDate = new Date(raw);
-              const now = new Date();
-              let years = now.getUTCFullYear() - birthDate.getUTCFullYear();
-              const m = now.getUTCMonth() - birthDate.getUTCMonth();
-              if (m < 0 || (m === 0 && now.getUTCDate() < birthDate.getUTCDate())) years--;
-              if (isNaN(years) || years < 0) years = 0;
               onChange("birthDate", raw);
-              onChange("petAge", years);
+              onChange("petAge", calculateAgeFromBirthDate(raw));
             }}
           />
         </div>

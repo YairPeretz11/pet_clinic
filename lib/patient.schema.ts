@@ -1,15 +1,18 @@
-import mongoose, { Schema, models } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
 const patientSchema = new Schema({
   name: { type: String, required: true },
   phone: { type: String, required: true },
   petName: { type: String, required: true },
   petType: { type: String, required: true },
-  // Store birthDate as the source of truth
   birthDate: { type: Date, required: true },
-  // petAge kept for backward compatibility but not required
-  petAge: { type: Number, required: false },
   createdAt: { type: Date, default: Date.now },
 });
 
-export default models.Patient || mongoose.model("Patient", patientSchema);
+const MODEL_NAME = "Patient";
+
+if (process.env.NODE_ENV === "development" && mongoose.models[MODEL_NAME]) {
+  delete mongoose.models[MODEL_NAME];
+}
+
+export default mongoose.models[MODEL_NAME] || mongoose.model(MODEL_NAME, patientSchema);

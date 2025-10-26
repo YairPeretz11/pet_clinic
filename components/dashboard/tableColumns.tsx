@@ -2,7 +2,15 @@ import { createColumnHelper } from "@tanstack/react-table";
 
 const columnHelper = createColumnHelper<any>();
 
-export const getColumns = (setFilters: (filters: any) => void, debouncedNameChange: (value: string) => void)=> [
+const formatAge = (value: any) => {
+  const parsed = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : "--";
+};
+
+export const getColumns = (
+  setFilters: (filters: any) => void,
+  debouncedNameChange: (value: string) => void
+) => [
   columnHelper.accessor("name", {
     header: () => (
       <div className="flex items-center gap-2">
@@ -43,6 +51,7 @@ export const getColumns = (setFilters: (filters: any) => void, debouncedNameChan
         />
       </div>
     ),
+    cell: (info) => formatAge(info.getValue()),
   }),
 
   columnHelper.accessor("petType", {
@@ -55,10 +64,10 @@ export const getColumns = (setFilters: (filters: any) => void, debouncedNameChan
           onChange={(e) => setFilters((prev: any) => ({ ...prev, petType: (e.target as HTMLSelectElement).value }))}
         >
           <option value="">All</option>
-          <option value="Dog">🐶 Dog</option>
-          <option value="Cat">🐱 Cat</option>
-          <option value="Parrot">🦜 Parrot</option>
-          <option value="Other">🐾 Other</option>
+          <option value="Dog">Dog</option>
+          <option value="Cat">Cat</option>
+          <option value="Parrot">Parrot</option>
+          <option value="Other">Other</option>
         </select>
       </div>
     ),

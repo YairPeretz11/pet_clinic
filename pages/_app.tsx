@@ -12,8 +12,9 @@ function MyApp({ Component, pageProps }: AppProps) {
         maxSnack={3}
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         autoHideDuration={1000}
+        style={{ zIndex: 2000 }}
       >
-      <Component {...pageProps} />
+        <Component {...pageProps} />
       </SnackbarProvider>
     </QueryClientProvider>
   )
